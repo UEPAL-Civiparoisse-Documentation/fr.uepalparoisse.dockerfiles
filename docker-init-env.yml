@@ -1,0 +1,38 @@
+#####
+#
+# Dockerfile pour l'initialisation d'un environnement de dev 
+# en utilisant les fichiers d'override pour l'initialisation
+# Attention : les clefs et certificats sont gérés par docker-init-envkeys.yml 
+# et les clefs et certificats ne participent pas à cette initialisation
+####
+
+version: "3.6"
+services:
+  civiinit:
+    image: uepal_test/init
+    env_file : 
+     - ./envfile_init
+     - ./envfile_init_override
+    hostname: civiinit
+#    networks: {}
+    volumes:
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_filevol
+        target: /app/web/sites
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+volumes:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+      

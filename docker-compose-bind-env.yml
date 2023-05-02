@@ -1,0 +1,224 @@
+####
+#
+# docker-compose global prévu pour être utilisé avec les 
+# variables d'environnement définies dans les images
+# attention : avant d'utiliser cette image, 
+# il faut avoir utilisé docker-init.yml pour initialiser le système
+# et il faut ensuite copier les fichiers et faire les chown/chmod/setfacl qui conviennent
+# Etant donné que l'on fait du dev avec cette image, on ajoute la liaison vers la host-gateway
+# de sorte à pouvoir utiliser xdebug
+# modifié en fonction des besoins du développeur
+# en se basant notamment sur les fichiers de clefs générés
+# dans les répertoires genkeys et certs
+# attention : penser à déclarer l'envfile principale dans la ligne de
+# commande docker-compose pour que les variables soient settées
+
+#
+####
+
+version: "3.6"
+services:
+  traefik:
+    image: uepal_test/traefik_docker
+    hostname: traefik
+    ports:
+      - "${EXPOSED_IP}:${EXPOSED_HTTP}:443"
+      - "${EXPOSED_IP}:${EXPOSED_TRAEFIK}:8080"
+    depends_on:
+      - civihttpddebug
+    networks:
+      debugnet:
+        aliases:
+          - traefik
+    env_file:
+      - ./envfile_traefik
+      - ./envfile_traefik_override
+    volumes:
+      - type: bind
+        source: ./genkeys/USAGE/extern_ca.x509
+        target: /CA/extern_ca.x509
+        read_only: true
+      - type: bind
+        source: ./genkeys/USAGE/wildcard.pem
+        target: /KEYS/wildcard.pem
+        read_only: true
+      - type: bind
+        source: ./genkeys/USAGE/wildcard.x509
+        target: /KEYS/wildcard.x509
+        read_only: true
+
+  civihttpddebug:
+    image: uepal_test/httpd_debug
+    hostname: civihttpddebug
+    depends_on:
+      - civirouterdebug    
+      - civimaildebug
+    networks:
+      debugnet:
+        aliases:
+          - ${SERVERNAME}
+          - civihttpd
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - ./envfile_httpd
+      - ./envfile_httpd_override
+    volumes:
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app
+        target: /app      
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app/web/sites
+        target: /app/web/sites
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /var/run/mysqld
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./genkeys/USAGE/extern.x509
+        target: ${SERVER_CERT}
+        read_only: true
+      - type: bind
+        source: ./genkeys/USAGE/extern.pem
+        target: ${SERVER_KEY}
+        read_only: true
+      - type: bind
+        source: ./certs
+        target: /etc/ssl/certs
+
+  civirouterdebug:
+     image: uepal_test/mysql_tls_router
+     hostname: civirouter
+     depends_on:
+       - cividbdebug
+     networks:
+       debugnet:
+         aliases:
+         - civirouter
+     volumes:
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /SOCK
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./genkeys/USAGE/db_ca.x509
+        target: /KEYS/db_ca.x509
+        read_only: true    
+
+  cividbdebug:
+    image: uepal_test/mysql_tls_server
+    hostname: cividb
+#    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    networks:    
+      debugnet:
+        aliases:
+        - civicrmdb
+    volumes:
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /var/run/mysqld
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./genkeys/USAGE/db_ca.x509
+        target: /KEYS/db_ca.x509
+        read_only: true    
+      - type: bind
+        source: ./genkeys/USAGE/civicrmdb.x509
+        target: /KEYS/civicrmdb.x509
+        read_only: true    
+      - type: bind
+        source: ./genkeys/USAGE/civicrmdb.pem
+        target: /KEYS/civicrmdb.pem
+        read_only: true
+     
+
+  civimaildebug:
+    image: uepal_test/test_opensmtpd_dovecot
+    hostname: civimail
+    ports:
+      - "${EXPOSED_IP}:${EXPOSED_SMTP}:25"
+      - "${EXPOSED_IP}:${EXPOSED_IMAP}:993"
+    networks:
+      debugnet:
+        aliases:
+        - imap
+        - smtp
+        - civimail
+        - ${MAILHOST}
+    volumes:
+      - type: bind
+        source: ./genkeys/USAGE/mail.pem
+        target: /KEYS/server.key
+        read_only: true
+      - type: bind
+        source: ./genkeys/USAGE/mail.x509
+        target: /KEYS/server.crt
+        read_only: true
+      - type: bind
+        source: ./certs
+        target: /etc/ssl/certs
+        read_only: true
+
+  civitoolsdebug:
+    image: uepal_test/tools_debug
+    hostname: civitoolsdebug
+    depends_on:
+      - civirouterdebug
+      - civimaildebug
+    networks:
+      debugnet:
+        aliases:
+        - civitools
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    volumes:
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /var/run/mysqld
+        volume:
+          nocopy: true
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app
+        target: /app
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app/web/sites
+        target: /app/web/sites
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./certs
+        target: /etc/ssl/certs
+        read_only: true
+
+networks:
+  debugnet:
+    
+volumes:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+  civicomp_dbsockvol:
+   driver: local
+   driver_opts:
+     type: "tmpfs"
+     o: "uid=999"
+     device: "tmpfs"

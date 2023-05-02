@@ -1,0 +1,6 @@
+{
+"require":{
+"composer/composer":"^2",
+"symfony/console":"^4"
+}
+}

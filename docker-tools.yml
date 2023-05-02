@@ -1,0 +1,42 @@
+version: "3.6"
+####
+#
+# docker-compose prévu pour agir uniquement sur le coeur du système
+# via des outils présent dans init, et surtout tools, 
+# car init dérive de tools.
+# Si nécessaire, il faudra manuellement changer l'owner de /var/lib/mysql
+# pour lancer manuellement un mysql avant de travailler
+# si on veut faire des tests plus complets, notamment avec les mails,
+# on préférera le docker-compose global qui intègre un environnement complet
+#
+####
+
+
+services:
+  civitools:
+    image: uepal_test/init
+    hostname: civitools
+#    networks: {}
+    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    volumes:
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_filevol
+        target: /app/web/sites
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+
+volumes:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+      

@@ -1,0 +1,2 @@
+%{env:IMAP_USER1}:{PLAIN}%{env:IMAP_PASSWD}
+%{env:IMAP_USER2}:{PLAIN}%{env:IMAP_PASSWD}

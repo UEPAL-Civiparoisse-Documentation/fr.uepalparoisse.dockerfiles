@@ -1,0 +1,2 @@
+[ext]
+subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:imap,DNS:smtp,DNS:imapdemo,DNS:smtpdemo

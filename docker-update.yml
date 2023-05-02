@@ -1,0 +1,40 @@
+version: "3.6"
+####
+#
+# docker-compose pour exécuter les opérations d'update sur la BD 
+# et les fichiers "utilisateurs"
+# rappel: les fichiers "systèmes" (dont Ubuntu, CiviCRM et Drupal) 
+# sont prévus pour être disponibles et mis à jour au niveau des images
+# 
+####
+services:
+  civitools:
+    image: uepal_test/update
+    hostname: civiupdate
+    networks: {}
+#    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    env_file:
+      - envfile_update
+      - envfile_update_override
+    volumes:    
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_filevol
+        target: /app/web/sites
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+
+volumes:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+      

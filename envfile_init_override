@@ -1,0 +1,8 @@
+SERVERNAME=civicrm3.test
+TRUSTED_HOST_PATTERNS=['^civicrm3\\.test$']
+MAILADMIN_ADDR=imapusername@civicrm3.test
+MAILSITE_ADDR=imapusername@civicrm3.test
+MAILDOMAIN_ADDR=imapusername@civicrm3.test
+BOUNCE_RETURNPATH=bounce@civicrm3.test
+IMAP_SERVER=civimail.test
+SMTP_HOST=civimail.test

@@ -1,0 +1,30 @@
+http:
+  routers:
+    myrouter:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`{{ env "SERVERNAME" | trimAll "\"" }}`)"
+      service: civihttpdservice
+      tls:
+  services:
+    civihttpdservice:
+      loadBalancer:
+        serversTransport: selfsigned
+        servers:
+          - url: "https://{{ env "SERVERNAME" | trimAll "\"" }}/"
+  serversTransports:
+    selfsigned:
+      disableHTTP2: true
+      maxIdleConnsPerHost: 0
+      serverName: "{{ env "SERVERNAME" | trimAll "\"" }}"
+      rootCAs:
+        - /CA/extern_ca.x509
+      forwardingTimeouts:
+        dialTimeout: "60s"
+        responseHeaderTimeout: 0
+        readIdleTimeout: 0
+        idleConnTimeout: "1s"
+tls:
+  certificates:
+    - certFile: /KEYS/wildcard.x509
+      keyFile: /KEYS/wildcard.pem

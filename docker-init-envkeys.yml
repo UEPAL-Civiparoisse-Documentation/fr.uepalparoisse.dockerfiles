@@ -1,0 +1,32 @@
+version: "3.6"
+####
+#
+# docker-compose pour générer les clefs d'un environnement
+# et les certificats sont là à cause du serveur de mail de démo
+# pour pouvoir intégrer via montage le répertoire /CERTS du container
+# on considère que seul le nom du serveur web et le mailhost 
+# doivent pouvoir être modifiés et que le reste peut rester 
+# simplement disponible avec le nommage via docker-compose
+# par contre, il faut penser à renseigner sur la ligne de commande
+# les valeurs des variables d'environnement
+# docker-compose -f docker-init-envkeys.yml -e SERVERNAME=val1 -e MAILHOST=val2 up
+# ou docker-compose -f docker-init-envkeys.yml --env-file envfile up
+# Attention : l'installation de base est gérée par docker-init-env.yml
+#
+####
+services:
+  civikeys:
+    image: uepal_test/keys_init
+    hostname: civikeys
+    networks: {}
+    volumes:
+      - type: bind
+        source: ./genkeys
+        target: /KEYS
+      - type: bind
+        source: ./certs
+        target: /CERTS
+    environment:
+      SERVERNAME:      
+      MAILHOST:
+      WILDCARDNAME:

@@ -1,0 +1,5 @@
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+TZ=UTC
+SERVERNAME=civicrm.test
+SERVER_CERT=/var/run/secrets/KEYS/extern.x509
+SERVER_KEY=/var/run/secrets/KEYS/extern.pem

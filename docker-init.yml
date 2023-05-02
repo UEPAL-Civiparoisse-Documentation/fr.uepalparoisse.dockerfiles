@@ -1,0 +1,44 @@
+#####
+#
+# Dockerfile pour l'initialisation d'un environnement de dev 
+# en utilisant les valeurs par défaut de l'environnement présent dans les images
+#
+####
+
+version: "3.6"
+services:
+  civiinit:
+    image: uepal_test/init
+    hostname: civiinit
+#    networks: {}
+    volumes:
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_filevol
+        target: /app/web/sites
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+  civica:
+    image: uepal_test/selfkeys
+    hostname: civica
+    volumes:
+      - type: volume
+        source: civicomp_certvol
+        target: /target_certs
+        volume:
+          nocopy: true
+volumes:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+  civicomp_certvol:
+      

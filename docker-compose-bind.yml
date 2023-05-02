@@ -1,0 +1,154 @@
+####
+#
+# docker-compose global prévu pour être utilisé avec les 
+# variables d'environnement définies dans les images
+# attention : avant d'utiliser cette image, 
+# il faut avoir utilisé docker-init.yml pour initialiser le système
+# et il faut ensuite copier les fichiers et faire les chown/chmod/setfacl qui conviennent
+# Etant donné que l'on fait du dev avec cette image, on ajoute la liaison vers la host-gateway
+# de sorte à pouvoir utiliser xdebug
+#
+####
+
+version: "3.6"
+services:
+  traefikdebug:
+    image: uepal_test/traefik_docker
+    hostname: traefik
+    ports:
+      - "127.0.0.1:443:443"
+      - "127.0.0.1:18080:8080"
+    depends_on:
+      - civihttpddebug
+    networks:
+      debugnet:
+        aliases:
+          - traefik
+
+  civihttpddebug:
+    image: uepal_test/httpd_debug
+    hostname: civihttpddebug
+    depends_on:
+      - civirouterdebug    
+      - civimaildebug
+    networks:
+      debugnet:
+        aliases:
+          - civicrm.test
+          - civihttpd
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app
+        target: /app      
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app/web/sites
+        target: /app/web/sites
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /var/run/mysqld
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_certvol
+        target: /etc/ssl/certs
+        volume:
+          nocopy: true
+
+  civirouterdebug:
+     image: uepal_test/mysql_tls_router
+     hostname: civirouter
+     depends_on:
+       - cividbdebug
+     networks:
+       debugnet:
+         aliases:
+         - civirouter
+     volumes:
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /SOCK
+        volume:
+          nocopy: true
+
+  cividbdebug:
+    image: uepal_test/mysql_tls_server
+    hostname: cividb
+#    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    networks:    
+      debugnet:
+        aliases:
+        - civicrmdb
+    volumes:
+      - type: volume
+        source: civicomp_dbvol
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+
+  civimaildebug:
+    image: uepal_test/test_opensmtpd_dovecot
+    hostname: civimail
+    networks:
+      debugnet:
+        aliases:
+        - imap
+        - smtp
+
+  civitoolsdebug:
+    image: uepal_test/tools_debug
+    hostname: civitoolsdebug
+    depends_on:
+      - civirouterdebug
+      - civimaildebug
+    networks:
+      debugnet:
+        aliases:
+        - civitools
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["/bin/sh","-c","while true;do  sleep 3600;done"]
+    volumes:
+      - type: volume
+        source: civicomp_dbsockvol
+        target: /var/run/mysqld
+        volume:
+          nocopy: true
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app
+        target: /app
+      - type: bind
+        source: ${CIVIPAROISSEDEV}/app/web/sites
+        target: /app/web/sites
+      - type: volume
+        source: civicomp_privatevol
+        target: /app/private
+        volume:
+          nocopy: true
+      - type: volume
+        source: civicomp_certvol
+        target: /etc/ssl/certs
+        volume:
+          nocopy: true
+
+
+networks:
+  debugnet:
+    
+volumes:
+  civicomp_certvol:
+  civicomp_dbvol:
+  civicomp_filevol:
+  civicomp_privatevol:
+  civicomp_dbsockvol:
+    driver: local
+    driver_opts:
+      type: "tmpfs"
+      o: "uid=999"
+      device: "tmpfs"

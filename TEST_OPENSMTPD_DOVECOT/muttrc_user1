@@ -1,0 +1,9 @@
+set smtp_url = "smtp://${SMTP_USER}:${SMTP_PASSWD}@localhost:25"
+set spoolfile = "imaps://${IMAP_USER1}:${IMAP_PASSWD}@localhost:993/INBOX"
+set mail_check = 60
+set realname = "${IMAP_USER1}"
+set from = "${IMAP_USER1}@test.test"
+set ssl_force_tls = yes
+set ssl_starttls = yes
+set ssl_ca_certificates_file = "/KEYS/server.crt"
+
