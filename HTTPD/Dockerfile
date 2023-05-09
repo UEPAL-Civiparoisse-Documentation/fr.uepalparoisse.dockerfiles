@@ -1,6 +1,7 @@
 #Image du serveur web
 FROM ubuntu/apache2
-LABEL uepal.name="httpd" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="httpd" uepal.version=${BUILDVERSION}
 RUN usermod -L -s /usr/sbin/nologin -e 1 ubuntu
 ENV LANG=C.UTF-8
 ENV MAX_CONNECTIONS_PER_CHILD=1 MAX_REQUEST_WORKERS=4 SERVER_LIMIT=4 START_SERVERS=4 MIN_SPARE_SERVERS=1 MAX_SPARE_SERVERS=4 LISTEN_BACKLOG=1

@@ -1,6 +1,7 @@
 #Image pour disposer de mysqlrouter pour la connexion chiffrée vers la BD et le montage socket depuis un container du même pod
 FROM ubuntu:lunar
-LABEL uepal.name="uepal/mysql_tls_router" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="uepal/mysql_tls_router" uepal.version=${BUILDVERSION}
 RUN usermod -L -s /usr/sbin/nologin -e 1 ubuntu
 ENV LANG=C.UTF-8
 RUN mkdir /KEYS && mkdir /etc/mysqlrouter && mkdir /SOCK

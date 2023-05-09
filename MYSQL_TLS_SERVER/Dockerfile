@@ -1,6 +1,7 @@
 #Image du serveur BD
 FROM ubuntu/mysql:latest
-LABEL uepal.name="uepal_test/mysql_tls_server" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="uepal_test/mysql_tls_server" uepal.version=${BUILDVERSION}
 ENV LANG=C.UTF-8
 RUN apt-get update && apt-get full-upgrade -y && export DEBIAN_FRONTEND=noninteractive && apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists
 RUN mkdir /KEYS

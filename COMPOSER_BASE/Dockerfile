@@ -1,6 +1,7 @@
 #Compilation d'une image de base avec php, en utilisant composer de la distribution pour récupérer la dernière version de composer
 FROM ubuntu:lunar
-LABEL uepal.name="uepal/composer_base" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="uepal/composer_base" uepal.version=${BUILDVERSION}
 RUN usermod -L -s /usr/sbin/nologin -e 1 ubuntu
 ENV LANG=C.UTF-8
 RUN apt-get update && apt-get full-upgrade -y && export DEBIAN_FRONTEND=noninteractive && ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime && apt-get install -y tzdata && dpkg-reconfigure --frontend noninteractive tzdata && apt-get install -y wget php8.1 php8.1-cli php8.1-curl php8.1-gd php8.1-intl php8.1-uploadprogress php8.1-mysql php8.1-opcache php8.1-xml php8.1-bcmath php8.1-mbstring php8.1-soap php8.1-xsl php8.1-zip php8.1-imagick composer libxml2-utils && apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists

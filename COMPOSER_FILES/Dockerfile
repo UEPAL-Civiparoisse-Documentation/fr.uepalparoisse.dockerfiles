@@ -1,6 +1,7 @@
 # Image pour fixer les fichiers statiques qui constitueront le code de base d'une instance de civiparoisse
 FROM uepal_test/composer_base
-LABEL uepal.name="composer_files" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="composer_files" uepal.version=${BUILDVERSION}
 #ADD composer_registry.tar.gz /
 #RUN  chown -R root /composer_registry && mkdir /composer_home
 RUN mkdir /composer_home
