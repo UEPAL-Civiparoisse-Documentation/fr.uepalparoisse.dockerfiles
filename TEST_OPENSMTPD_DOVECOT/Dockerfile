@@ -2,7 +2,8 @@
 #Attention : il faut rester sur ubuntu:focal car il y a un bug dans la version embarquée dans les Ubuntu supérieures.
 #Attention : NE PAS INSTALLER EN PROD
 FROM ubuntu:focal
-LABEL uepal.name="uepal/test_msmtp_dovecot" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="uepal/test_msmtp_dovecot" uepal.version=${BUILDVERSION}
 ENV LANG=C.UTF-8
 ENV SMTP_USER_SECRET=smtpUsername SMTP_PASSWD_SECRET=smtpPassword IMAP_PASSWD_SECRET=imapPassword IMAP_USER_SECRET=imapUsername IMAP_USER2_SECRET=imapUsername2
 RUN apt-get update && apt-get full-upgrade -y && export DEBIAN_FRONTEND=noninteractive && ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime && apt-get install -y tzdata && dpkg-reconfigure --frontend noninteractive tzdata

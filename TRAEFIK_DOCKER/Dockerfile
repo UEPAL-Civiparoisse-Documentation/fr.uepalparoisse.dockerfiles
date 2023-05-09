@@ -1,6 +1,7 @@
 #Image faisant office d'ingress controller pour simuler (dans une certaine mesure) sous Docker ce qu'on met dans K8S via helm
 FROM traefik
-LABEL uepal.name="traefik_docker" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="traefik_docker" uepal.version=${BUILDVERSION}
 ENV SERVERNAME=civicrm.test
 RUN mkdir /CA && mkdir /etc/traefik && mkdir /etc/traefik/conf.d && mkdir /KEYS
 COPY --from=uepal_test/selfkeys /KEYS/USAGE/extern_ca.x509 /CA/extern_ca.x509

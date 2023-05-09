@@ -1,6 +1,7 @@
 #Image avec les outils pour l'exploitation
 FROM uepal_test/composer_base
-LABEL uepal.name="tools" uepal.version="0.1.0"
+ARG BUILDVERSION=0.0.1
+LABEL uepal.name="tools" uepal.version=${BUILDVERSION}
 #ARG MYSQLVERSION=8.0.28-0ubuntu4
 #ENV MYSQLVERSIONENV=${MYSQLVERSION}
 #RUN echo "MySQLVERSION : "${MYSQLVERSION}
